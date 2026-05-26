@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Отпетушат ли тебя сегодня?</title>
+<link href="https://fonts.googleapis.com/css2?family=MedievalSharp&family=Cinzel+Decorative:wght@400;700;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #c9a84c;
+    --gold-light: #f0d080;
+    --gold-dark: #8b6914;
+    --amber: #e8a020;
+    --cream: #f5e8c8;
+    --parchment: #ede0b0;
+    --brown-dark: #2a1a08;
+    --brown-mid: #4a2e10;
+    --brown-light: #7a4e28;
+    --green-hs: #2d6a35;
+    --green-glow: #4daa60;
+    --red-hs: #8b1a1a;
+    --blue-magic: #4a7fb5;
+    --purple-magic: #7a4ab5;
+    --shadow: rgba(0,0,0,0.7);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    min-height: 100vh;
+    background: #1a0d00;
+    font-family: 'Crimson Text', Georgia, serif;
+    overflow-x: hidden;
+    cursor: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'><circle cx='10' cy='10' r='4' fill='%23c9a84c' opacity='0.8'/></svg>") 10 10, auto;
+  }
+
+  /* === TAVERN BACKGROUND === */
+  .tavern-bg {
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 20% 80%, rgba(180,80,20,0.15) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 20%, rgba(100,40,180,0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 50%, rgba(201,168,76,0.04) 0%, transparent 70%),
+      linear-gradient(180deg, #0d0600 0%, #1a0d00 30%, #150a00 70%, #0a0500 100%);
+    z-index: 0;
+  }
+
+  /* Wood planks texture */
+  .wood-planks {
+    position: fixed;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 59px,
+      rgba(0,0,0,0.3) 59px,
+      rgba(0,0,0,0.3) 61px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgba(201,168,76,0.02) 0px,
+      rgba(0,0,0,0.01) 200px,
+      rgba(201,168,76,0.02) 400px
+    );
+    z-index: 0;
+  }
+
+  /* Floating embers */
+  .embers-container {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    overflow: hidden;
+  }
+
+  .ember {
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: var(--amber);
+    box-shadow: 0 0 6px var(--amber), 0 0 12px rgba(232,160,32,0.5);
+    animation: floatEmber linear infinite;
+    opacity: 0;
+  }
+
+  @keyframes floatEmber {
+    0% { transform: translateY(100vh) translateX(0) scale(1); opacity: 0; }
+    10% { opacity: 1; }
+    50% { transform: translateY(50vh) translateX(30px) scale(0.8); opacity: 0.8; }
+    90% { opacity: 0.3; }
+    100% { transform: translateY(-10vh) translateX(-20px) scale(0.2); opacity: 0; }
+  }
+
+  /* Torch lights */
+  .torch {
+    position: fixed;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 1;
+    animation: torchFlicker 3s ease-in-out infinite;
+  }
+  .torch-left { top: 15%; left: 3%; background: radial-gradient(circle, rgba(255,140,0,0.4) 0%, transparent 70%); }
+  .torch-right { top: 15%; right: 3%; background: radial-gradient(circle, rgba(255,140,0,0.4) 0%, transparent 70%); }
+
+  @keyframes torchFlicker {
+    0%, 100% { opacity: 0.7; transform: scale(1); }
+    25% { opacity: 1; transform: scale(1.1); }
+    50% { opacity: 0.8; transform: scale(0.95); }
+    75% { opacity: 1; transform: scale(1.05); }
+  }
+
+  /* === MAIN LAYOUT === */
+  .page-wrap {
+    position: relative;
+    z-index: 10;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 30px 20px 60px;
+  }
+
+  /* === HEADER BANNER === */
+  .header-banner {
+    width: min(700px, 96vw);
+    margin-bottom: 30px;
+    text-align: center;
+    position: relative;
+  }
+
+  .banner-frame {
+    background: linear-gradient(135deg, #2a1a08 0%, #3d2510 30%, #2a1a08 60%, #3d2510 100%);
+    border: 3px solid var(--gold);
+    border-radius: 8px;
+    padding: 20px 30px 18px;
+    position: relative;
+    box-shadow:
+      0 0 0 1px var(--gold-dark),
+      0 0 30px rgba(201,168,76,0.2),
+      inset 0 0 30px rgba(0,0,0,0.5),
+      0 8px 32px rgba(0,0,0,0.8);
+  }
+
+  .banner-frame::before, .banner-frame::after {
+    content: '✦';
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--gold);
+    font-size: 22px;
+    text-shadow: 0 0 10px var(--amber);
+  }
+  .banner-frame::before { left: 10px; }
+  .banner-frame::after { right: 10px; }
+
+  .corner-gem {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    background: radial-gradient(circle, #ff6030, #a02010);
+    border: 2px solid var(--gold);
+    border-radius: 3px;
+    transform: rotate(45deg);
+    box-shadow: 0 0 8px rgba(255,80,30,0.6);
+  }
+  .corner-gem.tl { top: -8px; left: -8px; }
+  .corner-gem.tr { top: -8px; right: -8px; }
+  .corner-gem.bl { bottom: -8px; left: -8px; }
+  .corner-gem.br { bottom: -8px; right: -8px; }
+
+  .main-title {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: clamp(16px, 4.5vw, 30px);
+    font-weight: 900;
+    color: var(--gold-light);
+    text-shadow:
+      0 0 10px var(--amber),
+      0 0 30px rgba(232,160,32,0.4),
+      2px 2px 4px rgba(0,0,0,0.9);
+    letter-spacing: 2px;
+    line-height: 1.3;
+    animation: titleGlow 4s ease-in-out infinite;
+  }
+
+  @keyframes titleGlow {
+    0%, 100% { text-shadow: 0 0 10px var(--amber), 0 0 30px rgba(232,160,32,0.4), 2px 2px 4px rgba(0,0,0,0.9); }
+    50% { text-shadow: 0 0 20px var(--gold), 0 0 60px rgba(201,168,76,0.6), 2px 2px 4px rgba(0,0,0,0.9); }
+  }
+
+  .sub-title {
+    font-family: 'Crimson Text', serif;
+    font-style: italic;
+    color: rgba(201,168,76,0.7);
+    font-size: 14px;
+    margin-top: 6px;
+    letter-spacing: 3px;
+  }
+
+  /* === STATS BAR (HS style) === */
+  .stats-bar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .stat-gem {
+    background: linear-gradient(135deg, #1e1208 0%, #2d1c0c 100%);
+    border: 2px solid var(--gold-dark);
+    border-radius: 20px;
+    padding: 6px 16px;
+    font-family: 'Crimson Text', serif;
+    font-size: 13px;
+    color: var(--parchment);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.5), inset 0 1px 0 rgba(201,168,76,0.1);
+    transition: all 0.3s;
+  }
+  .stat-gem:hover { border-color: var(--gold); transform: translateY(-1px); }
+  .stat-gem .icon { font-size: 16px; }
+
+  /* === MAIN ARENA === */
+  .arena {
+    width: min(560px, 96vw);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+  }
+
+  /* === THE BOX === */
+  .box-stage {
+    position: relative;
+    width: 220px;
+    height: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Rune circles */
+  .rune-ring {
+    position: absolute;
+    inset: -30px;
+    border-radius: 50%;
+    border: 2px solid rgba(201,168,76,0.2);
+    animation: spinRing 20s linear infinite;
+  }
+  .rune-ring::before {
+    content: '✦ ᚠ ✦ ᚢ ✦ ᚦ ✦ ᚨ ✦ ᚱ ✦ ᚲ ✦';
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 11px;
+    color: rgba(201,168,76,0.4);
+    white-space: nowrap;
+  }
+  .rune-ring-2 {
+    position: absolute;
+    inset: -50px;
+    border-radius: 50%;
+    border: 1px solid rgba(201,168,76,0.1);
+    animation: spinRing 30s linear infinite reverse;
+  }
+
+  @keyframes spinRing { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+  /* The magical box */
+  .mystery-box {
+    width: 180px;
+    height: 180px;
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.1s;
+    filter: drop-shadow(0 10px 30px rgba(0,0,0,0.7));
+    z-index: 5;
+  }
+
+  .mystery-box:hover { transform: scale(1.03); }
+  .mystery-box:active { transform: scale(0.97); }
+
+  /* Box SVG shape (HS card back style) */
+  .box-body {
+    width: 180px;
+    height: 180px;
+    background: linear-gradient(135deg, #3d2510 0%, #5a380f 25%, #4a2d10 50%, #5a380f 75%, #3d2510 100%);
+    border: 3px solid var(--gold);
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+    box-shadow:
+      0 0 0 1px var(--gold-dark),
+      inset 0 0 40px rgba(0,0,0,0.6),
+      0 15px 40px rgba(0,0,0,0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 8px;
+    transition: box-shadow 0.3s;
+  }
+
+  .box-inner-glow {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 50%, rgba(201,168,76,0.08) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  /* Box decorations */
+  .box-ornament {
+    position: absolute;
+    color: var(--gold);
+    opacity: 0.5;
+    font-size: 12px;
+  }
+  .box-ornament.top { top: 8px; left: 50%; transform: translateX(-50%); }
+  .box-ornament.bottom { bottom: 8px; left: 50%; transform: translateX(-50%); }
+  .box-ornament.left { left: 8px; top: 50%; transform: translateY(-50%); }
+  .box-ornament.right { right: 8px; top: 50%; transform: translateY(-50%); }
+
+  .box-rooster {
+    font-size: 50px;
+    z-index: 2;
+    filter: drop-shadow(0 0 8px rgba(201,168,76,0.4));
+    animation: roosterBob 3s ease-in-out infinite;
+    transition: transform 0.3s;
+  }
+
+  @keyframes roosterBob {
+    0%, 100% { transform: translateY(0) rotate(-2deg); }
+    50% { transform: translateY(-5px) rotate(2deg); }
+  }
+
+  .box-label {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 10px;
+    color: var(--gold-light);
+    text-align: center;
+    letter-spacing: 1px;
+    z-index: 2;
+    text-shadow: 0 0 8px var(--amber);
+    padding: 4px 10px;
+    border: 1px solid rgba(201,168,76,0.3);
+    border-radius: 4px;
+    background: rgba(0,0,0,0.3);
+  }
+
+  /* Corner ornaments */
+  .box-corner {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+  }
+  .box-corner.tl { top: -2px; left: -2px; border-top: 3px solid var(--gold-light); border-left: 3px solid var(--gold-light); border-radius: 4px 0 0 0; }
+  .box-corner.tr { top: -2px; right: -2px; border-top: 3px solid var(--gold-light); border-right: 3px solid var(--gold-light); border-radius: 0 4px 0 0; }
+  .box-corner.bl { bottom: -2px; left: -2px; border-bottom: 3px solid var(--gold-light); border-left: 3px solid var(--gold-light); border-radius: 0 0 0 4px; }
+  .box-corner.br { bottom: -2px; right: -2px; border-bottom: 3px solid var(--gold-light); border-right: 3px solid var(--gold-light); border-radius: 0 0 4px 0; }
+
+  /* === ANIMATIONS: SHAKING & FLASHING === */
+  .mystery-box.shaking {
+    animation: boxShake 0.5s ease-in-out infinite;
+  }
+
+  @keyframes boxShake {
+    0%, 100% { transform: rotate(0deg) scale(1); }
+    15% { transform: rotate(-4deg) scale(1.02); }
+    30% { transform: rotate(4deg) scale(1.04); }
+    45% { transform: rotate(-3deg) scale(1.02); }
+    60% { transform: rotate(3deg) scale(1.03); }
+    75% { transform: rotate(-2deg) scale(1.01); }
+    90% { transform: rotate(1deg) scale(1); }
+  }
+
+  .box-body.flashing {
+    animation: boxFlash 0.3s ease-in-out infinite;
+  }
+
+  @keyframes boxFlash {
+    0%, 100% { box-shadow: 0 0 0 1px var(--gold-dark), inset 0 0 40px rgba(0,0,0,0.6), 0 15px 40px rgba(0,0,0,0.8); }
+    50% {
+      box-shadow:
+        0 0 0 2px var(--gold),
+        inset 0 0 60px rgba(255,200,50,0.5),
+        0 0 60px rgba(255,200,50,0.6),
+        0 15px 40px rgba(255,150,0,0.5);
+    }
+  }
+
+  /* === THOUGHT BUBBLES === */
+  .bubbles-container {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 20;
+    overflow: hidden;
+  }
+
+  .thought-bubble {
+    position: absolute;
+    background: linear-gradient(135deg, rgba(42,26,8,0.95) 0%, rgba(58,36,12,0.95) 100%);
+    border: 2px solid var(--gold-dark);
+    border-radius: 16px;
+    padding: 10px 16px;
+    font-family: 'Crimson Text', serif;
+    font-style: italic;
+    font-size: 14px;
+    color: var(--parchment);
+    max-width: 220px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.6), 0 0 10px rgba(201,168,76,0.1);
+    opacity: 0;
+    animation: bubbleFloat 4s ease-in-out forwards;
+  }
+
+  .thought-bubble::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 20px;
+    width: 12px;
+    height: 8px;
+    background: rgba(42,26,8,0.95);
+    border-right: 2px solid var(--gold-dark);
+    border-bottom: 2px solid var(--gold-dark);
+    border-radius: 0 0 6px 0;
+    clip-path: polygon(0 0, 100% 0, 100% 100%);
+  }
+
+  @keyframes bubbleFloat {
+    0% { opacity: 0; transform: translateY(20px) scale(0.8); }
+    15% { opacity: 1; transform: translateY(0) scale(1); }
+    75% { opacity: 1; transform: translateY(-10px) scale(1); }
+    100% { opacity: 0; transform: translateY(-30px) scale(0.9); }
+  }
+
+  /* === SCROLL RESULT === */
+  .scroll-container {
+    display: none;
+    width: min(500px, 92vw);
+    position: relative;
+    animation: scrollUnfurl 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+
+  @keyframes scrollUnfurl {
+    0% { transform: scaleX(0) scaleY(0.5); opacity: 0; }
+    60% { transform: scaleX(1.05) scaleY(1); opacity: 1; }
+    100% { transform: scaleX(1) scaleY(1); opacity: 1; }
+  }
+
+  .scroll-visible {
+    display: flex;
+  }
+
+  /* Scroll ends (rollers) */
+  .scroll-roller {
+    width: 28px;
+    min-width: 28px;
+    background: linear-gradient(180deg, #5a3a10 0%, #8b5e20 30%, #c9a84c 50%, #8b5e20 70%, #5a3a10 100%);
+    border-radius: 14px;
+    border: 2px solid var(--gold);
+    box-shadow: 0 0 10px rgba(0,0,0,0.5), 0 0 20px rgba(201,168,76,0.2);
+    position: relative;
+  }
+
+  .scroll-roller::before {
+    content: '';
+    position: absolute;
+    top: 6px; bottom: 6px;
+    left: 50%; transform: translateX(-50%);
+    width: 6px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+    border-radius: 3px;
+  }
+
+  .scroll-body {
+    flex: 1;
+    background: linear-gradient(180deg, #c8b878 0%, #d4c280 15%, #e8d898 50%, #d4c280 85%, #c8b878 100%);
+    padding: 24px 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Parchment texture */
+  .scroll-body::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      repeating-linear-gradient(0deg, transparent, transparent 20px, rgba(0,0,0,0.04) 20px, rgba(0,0,0,0.04) 21px),
+      url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.08'/></svg>");
+    pointer-events: none;
+  }
+
+  .scroll-title {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 11px;
+    color: rgba(80,50,10,0.7);
+    text-align: center;
+    letter-spacing: 3px;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+  }
+
+  .scroll-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(139,100,40,0.5), transparent);
+    margin: 8px 0;
+  }
+
+  .scroll-answer {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: clamp(13px, 3.5vw, 20px);
+    color: #3a1f05;
+    text-align: center;
+    font-weight: 700;
+    line-height: 1.4;
+    text-shadow: 1px 1px 2px rgba(255,255,255,0.3);
+    padding: 8px 0;
+    animation: answerReveal 1s 0.5s ease-out both;
+  }
+
+  @keyframes answerReveal {
+    0% { opacity: 0; transform: scale(0.8); }
+    100% { opacity: 1; transform: scale(1); }
+  }
+
+  .scroll-seal {
+    width: 40px;
+    height: 40px;
+    background: radial-gradient(circle, #c00a0a, #800808);
+    border-radius: 50%;
+    margin: 10px auto 0;
+    border: 2px solid #ff6060;
+    box-shadow: 0 2px 8px rgba(180,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+
+  /* === AGAIN BUTTON === */
+  .btn-again {
+    display: none;
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 13px;
+    color: var(--brown-dark);
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 40%, var(--gold) 60%, var(--gold-dark) 100%);
+    border: none;
+    padding: 12px 32px;
+    border-radius: 8px;
+    cursor: pointer;
+    letter-spacing: 2px;
+    font-weight: 700;
+    box-shadow:
+      0 0 0 2px var(--gold-dark),
+      0 4px 20px rgba(0,0,0,0.5),
+      0 0 30px rgba(201,168,76,0.2);
+    transition: all 0.2s;
+    text-transform: uppercase;
+    animation: btnGlow 3s ease-in-out infinite;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-again::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -60%;
+    width: 30%;
+    height: 200%;
+    background: rgba(255,255,255,0.2);
+    transform: skewX(-20deg);
+    animation: btnShine 3s ease-in-out infinite;
+  }
+
+  @keyframes btnShine {
+    0%, 70%, 100% { left: -60%; }
+    40% { left: 120%; }
+  }
+
+  @keyframes btnGlow {
+    0%, 100% { box-shadow: 0 0 0 2px var(--gold-dark), 0 4px 20px rgba(0,0,0,0.5), 0 0 20px rgba(201,168,76,0.2); }
+    50% { box-shadow: 0 0 0 2px var(--gold), 0 4px 20px rgba(0,0,0,0.5), 0 0 40px rgba(201,168,76,0.4); }
+  }
+
+  .btn-again:hover { transform: translateY(-2px) scale(1.02); filter: brightness(1.1); }
+  .btn-again:active { transform: translateY(0) scale(0.98); }
+
+  .btn-visible { display: block; }
+
+  /* === FOOTER LORE === */
+  .footer-lore {
+    margin-top: 40px;
+    text-align: center;
+    font-family: 'Crimson Text', serif;
+    font-style: italic;
+    color: rgba(201,168,76,0.3);
+    font-size: 13px;
+    letter-spacing: 2px;
+  }
+
+  /* === SPARKLE BURST === */
+  .sparkle {
+    position: fixed;
+    pointer-events: none;
+    z-index: 100;
+    font-size: 20px;
+    animation: sparkleBurst 1s ease-out forwards;
+  }
+
+  @keyframes sparkleBurst {
+    0% { transform: translate(0, 0) scale(0) rotate(0deg); opacity: 1; }
+    100% { transform: translate(var(--tx), var(--ty)) scale(1) rotate(var(--rot)); opacity: 0; }
+  }
+
+  /* === RESPONSIVE === */
+  @media (max-width: 480px) {
+    .stats-bar { gap: 8px; }
+    .stat-gem { font-size: 12px; padding: 5px 12px; }
+    .rune-ring, .rune-ring-2 { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Background layers -->
+<div class="tavern-bg"></div>
+<div class="wood-planks"></div>
+
+<!-- Torch lights -->
+<div class="torch torch-left"></div>
+<div class="torch torch-right"></div>
+
+<!-- Floating embers -->
+<div class="embers-container" id="embersContainer"></div>
+
+<!-- Thought bubbles container -->
+<div class="bubbles-container" id="bubblesContainer"></div>
+
+<!-- Main content -->
+<div class="page-wrap">
+
+  <!-- Header Banner -->
+  <div class="header-banner">
+    <div class="banner-frame">
+      <div class="corner-gem tl"></div>
+      <div class="corner-gem tr"></div>
+      <div class="corner-gem bl"></div>
+      <div class="corner-gem br"></div>
+      <div class="main-title">🐓 ОТПЕТУШАТ ЛИ ТЕБЯ СЕГОДНЯ?</div>
+      <div class="sub-title">— таверна мрачных предсказаний —</div>
+    </div>
+  </div>
+
+  <!-- Stats bar -->
+  <div class="stats-bar">
+    <div class="stat-gem"><span class="icon">🎲</span> Судьба решена</div>
+    <div class="stat-gem"><span class="icon">⚗️</span> Магия 100%</div>
+    <div class="stat-gem"><span class="icon">🪄</span> 7 петушков</div>
+  </div>
+
+  <!-- Arena -->
+  <div class="arena">
+
+    <!-- The Mystery Box -->
+    <div class="box-stage">
+      <div class="rune-ring"></div>
+      <div class="rune-ring-2"></div>
+
+      <div class="mystery-box" id="mysteryBox" onclick="startPrediction()">
+        <div class="box-body" id="boxBody">
+          <div class="box-inner-glow"></div>
+          <div class="box-corner tl"></div>
+          <div class="box-corner tr"></div>
+          <div class="box-corner bl"></div>
+          <div class="box-corner br"></div>
+          <div class="box-ornament top">⬧ ⬧ ⬧</div>
+          <div class="box-ornament bottom">⬧ ⬧ ⬧</div>
+          <div class="box-ornament left">✦</div>
+          <div class="box-ornament right">✦</div>
+          <div class="box-rooster" id="boxRooster">🐓</div>
+          <div class="box-label" id="boxLabel">УЗНАТЬ СУДЬБУ</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scroll Result -->
+    <div class="scroll-container" id="scrollContainer">
+      <div class="scroll-roller"></div>
+      <div class="scroll-body">
+        <div class="scroll-title">✦ Предсказание Оракула ✦</div>
+        <div class="scroll-divider"></div>
+        <div class="scroll-answer" id="scrollAnswer"></div>
+        <div class="scroll-divider"></div>
+        <div class="scroll-seal">🔮</div>
+      </div>
+      <div class="scroll-roller"></div>
+    </div>
+
+    <!-- Again Button -->
+    <button class="btn-again" id="btnAgain" onclick="resetPrediction()">
+      ✦ Спросить снова ✦
+    </button>
+
+  </div>
+
+  <div class="footer-lore">~ оракул не несёт ответственности за последствия ~</div>
+</div>
+
+<script>
+  const answers = [
+    "Да. Однозначно да. Прими это с достоинством.",
+    "Точно отпетушат! Даже не сомневайся!",
+    "Куда тебя ещё петушить-то? Отдохни уже.",
+    "Не отпетушат. Везунчик! Скрывайся быстрее.",
+    "Может быть... Звёзды туманны и пьяны.",
+    "Скорее да, чем нет. Готовься морально.",
+    "Скорее нет, чем да. Но бдительности не теряй."
+  ];
+
+  const thoughts = [
+    "И хватает же наглости...",
+    "Чего людям вечно надо знать будущее?",
+    "Так и отпетушить могут за любопытство",
+    "Ладно, посмотрим что тут у нас...",
+    "Хмм... интересный случай...",
+    "Оракул не спал три дня ради этого?",
+    "Судьба, говоришь? Ну-ну.",
+    "Звёзды говорят... что им лень говорить",
+    "Кристальный шар запотел. Хороший знак.",
+    "Вижу петуха... или это курица?",
+    "Древние руны нашёптывают странное...",
+    "Карты легли... довольно криво."
+  ];
+
+  let predicting = false;
+  let bubbleTimer = null;
+  let bubbleIndex = 0;
+
+  // Create embers
+  function createEmbers() {
+    const container = document.getElementById('embersContainer');
+    for (let i = 0; i < 15; i++) {
+      const ember = document.createElement('div');
+      ember.className = 'ember';
+      ember.style.left = Math.random() * 100 + 'vw';
+      ember.style.animationDuration = (6 + Math.random() * 10) + 's';
+      ember.style.animationDelay = (Math.random() * 10) + 's';
+      ember.style.width = ember.style.height = (2 + Math.random() * 3) + 'px';
+      const colors = ['#e8a020', '#ff8030', '#ffcc40', '#ff6020'];
+      ember.style.background = colors[Math.floor(Math.random() * colors.length)];
+      container.appendChild(ember);
+    }
+  }
+
+  // Show a thought bubble
+  function showBubble(text, x, y) {
+    const container = document.getElementById('bubblesContainer');
+    const bubble = document.createElement('div');
+    bubble.className = 'thought-bubble';
+    bubble.textContent = text;
+
+    const bx = Math.min(Math.max(x - 110, 10), window.innerWidth - 240);
+    const by = Math.max(y - 80, 10);
+
+    bubble.style.left = bx + 'px';
+    bubble.style.top = by + 'px';
+    container.appendChild(bubble);
+
+    setTimeout(() => bubble.remove(), 4200);
+  }
+
+  // Spawn bubbles randomly during prediction
+  function spawnBubbles() {
+    const shuffled = [...thoughts].sort(() => Math.random() - 0.5);
+    let i = 0;
+
+    function next() {
+      if (!predicting) return;
+      const x = 80 + Math.random() * (window.innerWidth - 250);
+      const y = 80 + Math.random() * (window.innerHeight - 200);
+      showBubble(shuffled[i % shuffled.length], x, y);
+      i++;
+      bubbleTimer = setTimeout(next, 900 + Math.random() * 700);
+    }
+    next();
+  }
+
+  // Sparkle burst effect
+  function createSparkles(cx, cy) {
+    const symbols = ['✦', '✸', '⭑', '✵', '❋', '✺', '⊹'];
+    const colors = ['#f0d080', '#ff9030', '#c9a84c', '#ffffff', '#ffcc00'];
+    for (let i = 0; i < 14; i++) {
+      const el = document.createElement('div');
+      el.className = 'sparkle';
+      el.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+      el.style.color = colors[Math.floor(Math.random() * colors.length)];
+      el.style.left = cx + 'px';
+      el.style.top = cy + 'px';
+      const angle = (i / 14) * 360 * (Math.PI / 180);
+      const dist = 60 + Math.random() * 80;
+      el.style.setProperty('--tx', (Math.cos(angle) * dist) + 'px');
+      el.style.setProperty('--ty', (Math.sin(angle) * dist) + 'px');
+      el.style.setProperty('--rot', (Math.random() * 360 - 180) + 'deg');
+      el.style.animationDuration = (0.6 + Math.random() * 0.6) + 's';
+      el.style.animationDelay = (Math.random() * 0.2) + 's';
+      el.style.fontSize = (12 + Math.random() * 16) + 'px';
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 1500);
+    }
+  }
+
+  function startPrediction() {
+    if (predicting) return;
+    predicting = true;
+
+    const box = document.getElementById('mysteryBox');
+    const boxBody = document.getElementById('boxBody');
+    const boxRooster = document.getElementById('boxRooster');
+    const boxLabel = document.getElementById('boxLabel');
+
+    // Start shaking
+    box.classList.add('shaking');
+    setTimeout(() => { boxBody.classList.add('flashing'); }, 400);
+
+    // Change label
+    boxLabel.textContent = '...';
+    boxRooster.style.fontSize = '60px';
+
+    // Spawn thought bubbles
+    spawnBubbles();
+
+    // Get box center for sparkles
+    const rect = box.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+
+    // After 3.5 seconds — reveal
+    setTimeout(() => {
+      // Stop animations
+      box.classList.remove('shaking');
+      boxBody.classList.remove('flashing');
+      predicting = false;
+      clearTimeout(bubbleTimer);
+      bubbleTimer = null;
+
+      // Big sparkle burst
+      createSparkles(cx, cy);
+
+      // Pick answer
+      const answer = answers[Math.floor(Math.random() * answers.length)];
+      document.getElementById('scrollAnswer').textContent = answer;
+
+      // Show scroll
+      const scroll = document.getElementById('scrollContainer');
+      scroll.classList.add('scroll-visible');
+
+      // Show again button
+      const btn = document.getElementById('btnAgain');
+      btn.classList.add('btn-visible');
+
+      // Update box
+      boxLabel.textContent = 'ГОТОВО';
+      boxRooster.textContent = '🔮';
+
+    }, 3500);
+  }
+
+  function resetPrediction() {
+    const scroll = document.getElementById('scrollContainer');
+    const btn = document.getElementById('btnAgain');
+    const boxRooster = document.getElementById('boxRooster');
+    const boxLabel = document.getElementById('boxLabel');
+
+    scroll.classList.remove('scroll-visible');
+    btn.classList.remove('btn-visible');
+
+    // Force reflow for animation reset
+    scroll.offsetHeight;
+
+    boxRooster.textContent = '🐓';
+    boxRooster.style.fontSize = '50px';
+    boxLabel.textContent = 'УЗНАТЬ СУДЬБУ';
+  }
+
+  createEmbers();
+</script>
+</body>
+</html>
